@@ -4,6 +4,9 @@
 # PATH
 export PATH="$PATH:/usr/local/opt/mysql-client/bin"
 
+# Faster vi mode switching
+export KEYTIMEOUT=1
+
 # Powerlevel9k
 source /usr/local/opt/powerlevel9k/powerlevel9k.zsh-theme
 POWERLEVEL9K_MODE='nerdfont-complete'
@@ -164,6 +167,30 @@ function k() {
   source <(kubectl completion zsh)
   alias k=kubectl
   kubectl $@
+}
+
+function vim-git-diff() {
+    if [ $# -eq 0 ]
+    then
+        since='HEAD'
+    else
+        since=$1
+    fi
+
+    git_cmd="git diff --name-only $since"
+    files="$(eval ${git_cmd} | tr '\n' ' ')"
+
+    if [ -z "$files" ]
+    then
+        echo "No diff to show for $since"
+        return 1
+    fi
+
+    gdiff="'+tabdo Gvdiff $since' +tabfirst"
+    vim_cmd="vim -p $files $gdiff"
+
+    eval $vim_cmd
+    return 0
 }
 
 # Compilation flags
